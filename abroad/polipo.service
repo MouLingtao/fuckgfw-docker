@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# polipo
+#
+# chkconfig:   2345 65 15
+# description: polipo
+# processname: polipo
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/network
+[ "$NETWORKING" = "no" ] && exit 0
+
+fpm="/usr/local/bin/polipo"
+pid="/var/run/polipo.pid"
+cfg="/etc/polipo.conf"
+
+start() {
+    if [ -f "$pid" ]; then
+        stop
+        sleep 1
+    fi
+    echo $"Starting Polipo..."
+    $fpm -c $cfg
+}
+
+stop() {
+    if [ -f "$pid" ]; then
+        echo $"Stoping Polipo..."
+        kill -9 `cat $pid`
+        rm -rf "$pid"
+    fi
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start | stop | restart)
+        $1
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 2
+esac
+

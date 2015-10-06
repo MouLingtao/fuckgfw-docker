@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# qtunnel
+#
+# chkconfig:   2345 65 15
+# description: qtunnel
+# processname: qtunnel
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/network
+[ "$NETWORKING" = "no" ] && exit 0
+
+start() {
+    echo $"Starting qtunnel..."
+    nohup /usr/local/bin/qtunnel -backend='gfw-hk-moult.myalauda.cn:11850' -clientmode=true -crypto='rc4' -listen=':8123' -logto='stdout' -secret='123qweasd' > /dev/null &
+}
+
+stop() {
+    echo $"Stopping qtunnel..."
+    ps -ef | grep 'qtunnel' | grep 'backend' | awk '{print $2}' | xargs kill -9
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start | stop | restart)
+        $1
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 2
+esac
